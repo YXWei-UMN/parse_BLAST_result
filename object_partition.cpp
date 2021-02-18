@@ -15,10 +15,12 @@ object_partition::object_partition(string blastfile){
         if (line.size()<=1 || line[0]== '#')
             continue;
 
-        stringstream ss(line);
+        string delimiter = "\t";
         string primer, object;
-        getline(ss, primer, ' ');
-        getline(ss, object, ' ');
+        primer = line.substr(0, line.find(delimiter));
+        line.erase(0, line.find(delimiter) + delimiter.length());
+        object = line.substr(0, line.find(delimiter));
+
 
         auto primer_it = primers_.find(primer);
         auto object_it = objects_.find(object);
@@ -34,6 +36,7 @@ object_partition::object_partition(string blastfile){
             o=new ObjectRef;
             objects_.emplace(object,o);
             object_it = objects_.find(object);
+            cout<<"insert new primer"<<endl;
         }
 
         primer_it->second->internal_collided_objects.emplace(object,object_it->second);
@@ -73,10 +76,10 @@ void object_partition::data_analysis() {
         // primers with different collision number
         if(object_distribution.size()<i.second->internal_collided_primers.size()){
             for (int j = object_distribution.size(); j <= i.second->internal_collided_primers.size(); ++j) {
-                primer_distribution.push_back(0);
+                object_distribution.push_back(0);
             }
         }
-        primer_distribution[i.second->internal_collided_primers.size()-1]++;
+        object_distribution[i.second->internal_collided_primers.size()-1]++;
     }
 
 
