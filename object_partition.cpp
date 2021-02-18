@@ -4,7 +4,10 @@
 
 #include <sstream>
 #include "object_partition.h"
-
+bool control_payload_totalsize = false;
+int threshold_of_totalsize = 0.01 * 1813257;
+bool control_payload_singlesize = true;
+int number_of_strands_for_one_object = 2;
 object_partition::object_partition(string blastfile){
     fstream result_file(blastfile,ios::in);
     if (result_file.fail()) {
@@ -21,6 +24,17 @@ object_partition::object_partition(string blastfile){
         line.erase(0, line.find(delimiter) + delimiter.length());
         object = line.substr(0, line.find(delimiter));
 
+        //screen out irrelevant strands
+        if(control_payload_totalsize){
+            int objectID = stoi(object.substr(7,object.size()));
+            if(objectID>threshold_of_totalsize) continue;
+        }
+        if(control_payload_singlesize){
+            int objectID = stoi(object.substr(7,object.size()));
+            cout<<objectID<<" ";
+            object = to_string((objectID/number_of_strands_for_one_object)*number_of_strands_for_one_object);
+            cout<<object<<endl;
+        }
 
         auto primer_it = primers_.find(primer);
         auto object_it = objects_.find(object);
@@ -36,7 +50,6 @@ object_partition::object_partition(string blastfile){
             o=new ObjectRef;
             objects_.emplace(object,o);
             object_it = objects_.find(object);
-            cout<<"insert new primer"<<endl;
         }
 
         primer_it->second->internal_collided_objects.emplace(object,object_it->second);
