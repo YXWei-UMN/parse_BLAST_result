@@ -31,9 +31,7 @@ object_partition::object_partition(string blastfile){
         }
         if(control_payload_singlesize){
             int objectID = stoi(object.substr(7,object.size()));
-            cout<<objectID<<" ";
             object = to_string((objectID/number_of_strands_for_one_object)*number_of_strands_for_one_object);
-            cout<<object<<endl;
         }
 
         auto primer_it = primers_.find(primer);
@@ -52,6 +50,12 @@ object_partition::object_partition(string blastfile){
             object_it = objects_.find(object);
         }
 
+        if(object_it->second->internal_collided_primers.find(primer)!=object_it->second->internal_collided_primers.end()){
+                object_it->second->redundant_collision++;
+                primer_it->second->redundant_collision++;
+            continue;
+        }
+
         primer_it->second->internal_collided_objects.emplace(object,object_it->second);
         object_it->second->internal_collided_primers.emplace(primer,primer_it->second);
     }
@@ -62,7 +66,8 @@ object_partition::object_partition(string blastfile){
 void object_partition::data_analysis() {
     cout<<"primer number:"<<primers_.size()<<endl;
     cout<<"object number:"<<objects_.size()<<endl;
-
+    int total_collision = 0;
+    int redundant_collision = 0;
     //print primer violation distribution
     vector<int> primer_distribution;
     for(auto i:primers_){
@@ -86,6 +91,8 @@ void object_partition::data_analysis() {
     //print object violation distribution
     vector<int> object_distribution;
     for(auto i:objects_){
+        redundant_collision+=i.second->redundant_collision;
+        total_collision+=i.second->internal_collided_primers.size();
         // primers with different collision number
         if(object_distribution.size()<i.second->internal_collided_primers.size()){
             for (int j = object_distribution.size(); j <= i.second->internal_collided_primers.size(); ++j) {
@@ -103,4 +110,6 @@ void object_partition::data_analysis() {
     myfile.close();
     vector<int>().swap(object_distribution); //release memory
 
+    total_collision+=redundant_collision;
+    cout<<"redundant collision:"<<redundant_collision<<" total_collision:"<<total_collision;
 }

@@ -12,10 +12,12 @@ using namespace std;
 struct ObjectRef;
 
 struct PrimerRef {
+    int redundant_collision=0;
     unordered_map<string, ObjectRef*> internal_collided_objects; // <chunk ID, chunkRef>
 };
 
 struct ObjectRef {
+    int redundant_collision=0;
     unordered_map<string, PrimerRef*> internal_collided_primers; // <file name , fileRef>
 };
 
