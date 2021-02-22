@@ -8,6 +8,7 @@ bool control_payload_totalsize = false;
 int threshold_of_totalsize = 0.01 * 1813257;
 bool control_payload_singlesize = true;
 int number_of_strands_for_one_object = 2;
+bool if_count_intra_redundant_collision = true;
 object_partition::object_partition(string blastfile){
     fstream result_file(blastfile,ios::in);
     if (result_file.fail()) {
@@ -67,17 +68,21 @@ void object_partition::data_analysis() {
     cout<<"primer number:"<<primers_.size()<<endl;
     cout<<"object number:"<<objects_.size()<<endl;
     int total_collision = 0;
-    int redundant_collision = 0;
+    int intra_redundant_collision = 0;
     //print primer violation distribution
     vector<int> primer_distribution;
     for(auto i:primers_){
         // primers with different collision number
-        if(primer_distribution.size()<i.second->internal_collided_objects.size()){
-            for (int j = primer_distribution.size(); j <= i.second->internal_collided_objects.size(); ++j) {
+        int x_axis = i.second->internal_collided_objects.size()-1;
+        if (if_count_intra_redundant_collision){
+            x_axis+=i.second->redundant_collision;
+        }
+        if(primer_distribution.size()<x_axis+1){
+            for (int j = primer_distribution.size(); j <= x_axis+1; ++j) {
                 primer_distribution.push_back(0);
             }
         }
-        primer_distribution[i.second->internal_collided_objects.size()-1]++;
+        primer_distribution[x_axis]++;
     }
 
     ofstream myfile;
@@ -91,15 +96,19 @@ void object_partition::data_analysis() {
     //print object violation distribution
     vector<int> object_distribution;
     for(auto i:objects_){
-        redundant_collision+=i.second->redundant_collision;
+        intra_redundant_collision+=i.second->redundant_collision;
         total_collision+=i.second->internal_collided_primers.size();
-        // primers with different collision number
-        if(object_distribution.size()<i.second->internal_collided_primers.size()){
-            for (int j = object_distribution.size(); j <= i.second->internal_collided_primers.size(); ++j) {
+        // objects with different collision number
+        int x_axis = i.second->internal_collided_primers.size()-1;
+        if (if_count_intra_redundant_collision){
+            x_axis+=i.second->redundant_collision;
+        }
+        if(object_distribution.size()<x_axis+1){
+            for (int j = object_distribution.size(); j <= x_axis+1; ++j) {
                 object_distribution.push_back(0);
             }
         }
-        object_distribution[i.second->internal_collided_primers.size()-1]++;
+        object_distribution[x_axis]++;
     }
 
 
@@ -110,6 +119,6 @@ void object_partition::data_analysis() {
     myfile.close();
     vector<int>().swap(object_distribution); //release memory
 
-    total_collision+=redundant_collision;
-    cout<<"redundant collision:"<<redundant_collision<<" total_collision:"<<total_collision;
+    total_collision+=intra_redundant_collision;
+    cout<<"redundant collision:"<<intra_redundant_collision<<" total_collision:"<<total_collision;
 }
