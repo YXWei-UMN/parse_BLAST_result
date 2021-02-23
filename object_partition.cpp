@@ -3,6 +3,7 @@
 //
 
 #include <sstream>
+#include <set>
 #include "object_partition.h"
 bool control_payload_totalsize = false;
 int threshold_of_totalsize = 0.01 * 1813257;
@@ -70,6 +71,9 @@ void object_partition::data_analysis() {
     int total_collision = 0;
     int intra_redundant_collision = 0;
     //print primer violation distribution
+    set<string> hot_primers_collided_objects;
+    int hot_primer = 0;
+
     vector<int> primer_distribution;
     for(auto i:primers_){
         // primers with different collision number
@@ -83,6 +87,14 @@ void object_partition::data_analysis() {
             }
         }
         primer_distribution[x_axis]++;
+
+        //check hot primer's collided objects
+        if(i.second->internal_collided_objects.size()>400){
+            hot_primer++;
+            for(auto n:i.second->internal_collided_objects){
+                hot_primers_collided_objects.emplace(n.first);
+            }
+        }
     }
 
     ofstream myfile;
@@ -120,5 +132,8 @@ void object_partition::data_analysis() {
     vector<int>().swap(object_distribution); //release memory
 
     total_collision+=intra_redundant_collision;
-    cout<<"redundant collision:"<<intra_redundant_collision<<" total_collision:"<<total_collision;
+    cout<<"redundant collision:"<<intra_redundant_collision<<" total_collision:"<<total_collision<<endl;
+
+
+    cout<<"number of hot primer:"<<hot_primer<<" number of their collided objects:"<<hot_primers_collided_objects.size()<<endl;
 }
