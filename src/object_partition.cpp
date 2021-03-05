@@ -162,7 +162,7 @@ void object_partition::data_analysis() {
         //intra_redundant_collision+=i.second->redundant_collision;
         total_collision+=i.second->internal_collided_primers.size();
         // objects with different collision number
-        int x_axis = i.second->internal_collided_primers.size()-1;
+        int x_axis = i.second->internal_collided_primers.size();
         /*if (if_count_intra_redundant_collision){
             x_axis+=i.second->redundant_collision;
         }*/
