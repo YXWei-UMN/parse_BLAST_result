@@ -1,0 +1,13 @@
+blast_Result /home/eason/CLionProjects/parse_BLAST_result/blast_result
+# chunk size (how many strands)
+chunk_size 1
+# primer capacity how many strand
+primer_capacity 20
+# tube capacity how many primer
+tube_capacity 28000
+# total strand number
+total_strand_number 1813257
+if_baseline true
+if_decomposition_on_primer_graph false
+if_control_payload_totalsize false
+threshold_of_totalsize 0.1
