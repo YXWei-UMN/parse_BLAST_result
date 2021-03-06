@@ -57,6 +57,9 @@ object_partition::object_partition(string blastfile){
         primer_it->second->internal_collided_objects.emplace(object,object_it->second);
         object_it->second->internal_collided_primers.emplace(primer,primer_it->second);
     }
+    cout<<"collided primer number:"<<primers_.size()<<endl;
+    cout<<"collided object number:"<<objects_.size()<<endl;
+
     // blast result only has collided primer & objects, we complete other free objects here
     for (int i = 1; i < g_total_strand_number; ++i) {
         auto ob_it = objects_.find(to_string(i));
@@ -117,8 +120,6 @@ void object_partition::baseline(){
 void object_partition::decomposition_primer_graph() {}*/
 
 void object_partition::data_analysis() {
-    cout<<"collided primer number:"<<primers_.size()<<endl;
-    cout<<"collided object number:"<<objects_.size()<<endl;
     int total_collision = 0;
     int intra_redundant_collision = 0;
     //print primer violation distribution
